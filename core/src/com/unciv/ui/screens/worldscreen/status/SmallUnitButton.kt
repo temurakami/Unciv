@@ -43,10 +43,10 @@ class SmallUnitButton(
         val nextTurnButton = statusButtons.nextTurnButton
         val visible = nextTurnButton.isVisible
             && nextTurnButton.isNextUnitAction()
-            && worldScreen.bottomUnitTable.selectedUnit != null
         statusButtons.smallUnitButton = if (visible) this else null
         isEnabled = visible && nextTurnButton.isEnabled
             && worldScreen.bottomUnitTable.selectedUnit?.run { due && isIdle() } == true
+            && worldScreen.bottomUnitTable.selectedUnit != null
         pack()
     }
 
