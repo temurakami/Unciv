@@ -1,5 +1,7 @@
 package com.unciv.logic.automation.unit
 
+import com.unciv.Constants.simulationCiv1
+import com.unciv.Constants.simulationCiv2
 import com.unciv.logic.automation.Automation
 import com.unciv.logic.city.City
 import com.unciv.logic.civilization.Civilization
@@ -99,7 +101,22 @@ object CityLocationTileRanker {
         // Observatories are good, but current implementation not mod-friendly
         if (isNextToMountain) tileValue += 5
         // This bonus for settling on river is a bit outsized for the importance, but otherwise they have a habit of settling 1 tile away
-        if (newCityTile.isAdjacentToRiver()) tileValue += 20
+        newCityTile.debugBool = false
+        if (civ.civName == simulationCiv1) {
+            if (newCityTile.isAdjacentToRiver()) tileValue += 20
+            else if (newCityTile.getTilesAtDistance(1).any { it.isAdjacentToRiver() }) {
+                // Penalty if we're 1 away from the adj to river
+                tileValue -= 10
+                newCityTile.debugBool = true
+            }
+        } else {
+            if (newCityTile.isAdjacentToRiver()) tileValue += 18
+            else if (newCityTile.getTilesAtDistance(1).any { it.isAdjacentToRiver() }) {
+                // Penalty if we're 1 away from the adj to river
+                tileValue -= 10
+                newCityTile.debugBool = true
+            }
+        }
         // We want to found the city on an oasis because it can't be improved otherwise
         if (newCityTile.terrainHasUnique(UniqueType.Unbuildable)) tileValue += 3
         // If we build the city on a resource tile, then we can't build any special improvements on it
@@ -120,6 +137,7 @@ object CityLocationTileRanker {
 
         // Placing cities on the edge of the map is bad, we can't even build improvements on them!
         tileValue -= (HexMath.getNumberOfTilesInHexagon(3) - tiles) * 2.4f
+        newCityTile.debugVal = tileValue
         return tileValue
     }
 
